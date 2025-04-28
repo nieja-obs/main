@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Śmieszkowo 😄</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #4267B2;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 28px;
+    }
+
+    .feed {
+      max-width: 600px;
+      margin: 30px auto;
+    }
+
+    .post {
+      background-color: white;
+      margin-bottom: 20px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .username {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .joke {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    .emoji {
+      font-size: 24px;
+      margin-top: 10px;
+    }
+
+    .buttons {
+      margin-top: 10px;
+    }
+
+    .like-btn, .comment-btn {
+      padding: 5px 10px;
+      margin-right: 10px;
+      background-color: #4267B2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .like-count {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .comment-section {
+      margin-top: 10px;
+    }
+
+    .comment-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .comment-list li {
+      background-color: #f2f2f2;
+      padding: 5px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+
+    .comment-input {
+      width: 100%;
+      margin-top: 5px;
+      padding: 5px;
+      font-size: 14px;
+    }
+
+    .submit-comment {
+      margin-top: 5px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .add-joke-form {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .add-joke-form input, .add-joke-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .add-joke-form button {
+      margin-top: 10px;
+      background-color: #00aaff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<header>😂 Śmieszkowo - codzienna dawka żartów</header>
+
+<div class="feed" id="jokeFeed">
+  <!-- Przykładowy post -->
+  <div class="post">
+    <div class="username">@suchar_dnia</div>
+    <div class="joke"> Kiedy mówisz do Boga ludzie myślą że się modlisz <br>a kiedy Bóg mówi do ciebie twierdzą że jesteś ... schizofrenikiem</div>
+    <div class="emoji">😂</div>
+    <div class="buttons">
+      <button class="like-btn" onclick="likePost(this)">👍 Lubię to</button>
+      <span class="like-count">0 polubień</span>
+    </div>
+    <div class="comment-section">
+      <input class="comment-input" placeholder="Dodaj komentarz...">
+      <button class="submit-comment" onclick="addComment(this)">Dodaj</button>
+      <ul class="comment-list"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- Formularz dodawania własnego żartu -->
+<div class="add-joke-form">
+  <h3>Dodaj własny żart 🤪</h3>
+  <input id="usernameInput" type="text" placeholder="Twoja nazwa użytkownika">
+  <textarea id="jokeInput" rows="3" placeholder="Twój żart..."></textarea>
+  <button onclick="addNewJoke()">Dodaj żart</button>
+</div>
+<script>
+  let postIdCounter = 1;
+
+  // Funkcja do obsługi kliknięcia "Lubię to"
+  function likePost(button) {
+    const post = button.closest(".post");
+    const postId = post.getAttribute("data-id");
+
+    const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "[]");
+
+    // Sprawdzenie, czy post już został polubiony
+    if (likedPosts.includes(postId)) {
+      alert("Już polubiłeś ten żart!");
+      return;
+    }
+
+    // Zwiększenie liczby lajków
+    const countSpan = button.nextElementSibling;
+    let current = parseInt(countSpan.textContent) || 0;
+    countSpan.textContent = `${++current} polubień`;
+
+    // Dodanie postu do listy polubionych w localStorage
+    likedPosts.push(postId);
+    localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
+  }
+
+  // Funkcja do dodawania komentarzy
+  function addComment(button) {
+    const input = button.previousElementSibling;
+    const commentList = button.nextElementSibling;
+    const comment = input.value.trim();
+    if (comment) {
+      const li = document.createElement("li");
+      li.textContent = comment;
+      commentList.appendChild(li);
+      input.value = "";
+    }
+  }
+
+  // Funkcja do dodawania nowych żartów
+  function addNewJoke() {
+    const username = document.getElementById("usernameInput").value.trim();
+    const jokeText = document.getElementById("jokeInput").value.trim();
+    if (!username || !jokeText) {
+      alert("Uzupełnij nazwę użytkownika i żart!");
+      return;
+    }
+
+    const feed = document.getElementById("jokeFeed");
+
+    const post = document.createElement("div");
+    post.className = "post";
+    post.setAttribute("data-id", `user-${Date.now()}`); // Unikalne ID na podstawie czasu
+
+    post.innerHTML = `
+      <div class="username">@${username}</div>
+      <div class="joke">${jokeText}</div>
+      <div class="emoji">😂</div>
+      <div class="buttons">
+        <button class="like-btn" onclick="likePost(this)">👍 Lubię to</button>
+        <span class="like-count">0 polubień</span>
+      </div>
+      <div class="comment-section">
+        <input class="comment-input" placeholder="Dodaj komentarz...">
+        <button class="submit-comment" onclick="addComment(this)">Dodaj</button>
+        <ul class="comment-list"></ul>
+      </div>
+    `;
+
+    feed.prepend(post);
+
+    document.getElementById("usernameInput").value = "";
+    document.getElementById("jokeInput").value = "";
+  }
+
+  // Funkcja do odczytania polubionych postów z localStorage
+  function restoreLikes() {
+    const likedPosts = JSON.parse(localStorage.getItem("likedPosts") || "[]");
+    const posts = document.querySelectorAll(".post");
+
+    posts.forEach(post => {
+      const postId = post.getAttribute("data-id");
+      if (likedPosts.includes(postId)) {
+        const countSpan = post.querySelector(".like-count");
+        let current = parseInt(countSpan.textContent) || 0;
+        countSpan.textContent = `${++current} polubień`;
+
+        // Zmiana koloru przycisku, aby pokazać, że post jest już polubiony
+        const likeButton = post.querySelector(".like-btn");
+        likeButton.disabled = true; // Zablokowanie możliwości ponownego polubienia
+      }
+    });
+  }
+
+  // Funkcja uruchamiająca po załadowaniu strony
+  window.addEventListener("DOMContentLoaded", () => {
+    restoreLikes(); // Przywracanie polubionych postów po załadowaniu strony
+
+    const posts = document.querySelectorAll(".post");
+    posts.forEach(post => {
+      post.setAttribute("data-id", `static-${postIdCounter++}`);
+    });
+  });
+</script>
+
+
+</body>
+</html>
